@@ -10,7 +10,8 @@ import { HomePage } from '../pages/home/home';
 import {EmailComposer} from "@ionic-native/email-composer";
 import {File} from "@ionic-native/file";
 import {FileOpener} from "@ionic-native/file-opener";
-import {FileTransfer} from "@ionic-native/file-transfer";
+import {FilePath} from "@ionic-native/file-path";
+import {Base64} from "@ionic-native/base64";
 
 @NgModule({
   declarations: [
@@ -31,8 +32,9 @@ import {FileTransfer} from "@ionic-native/file-transfer";
     SplashScreen,
     EmailComposer,
     File,
+    FilePath,
+    Base64,
     FileOpener,
-    FileTransfer,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
