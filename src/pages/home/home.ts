@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import {AlertController, NavController, Platform} from 'ionic-angular';
-import {FileUploadOptions, FileTransferObject, FileTransfer} from '@ionic-native/file-transfer';
+import {AlertController, NavController, Platform, ToastController} from 'ionic-angular';
+import {FileUploadOptions, FileTransferObject} from '@ionic-native/file-transfer';
 import {File} from '@ionic-native/file';
 import {EmailComposer} from "@ionic-native/email-composer";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import {FileOpener} from "@ionic-native/file-opener";
 import {FilePath} from "@ionic-native/file-path";
+import {Base64} from "@ionic-native/base64";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -23,14 +24,13 @@ export class HomePage {
 
   pdfObj = null;
   rutaPdf:any;
-  fileTransfer:FileTransferObject = this.transfer.create();
-  constructor(public navCtrl: NavController,
-              private emailComposer:EmailComposer,
+  constructor(private emailComposer:EmailComposer,
               private file: File,
-              private transfer:FileTransfer,
               private FilePath:FilePath,
               private alertController:AlertController,
               private fileOpener: FileOpener,
+              private toastCtrl:ToastController,
+              private b64:Base64,
               private plfrm:Platform) {
   }
 
@@ -38,14 +38,13 @@ export class HomePage {
 
   sendPDF(pdf:any) {
 
-
       let email = {
-        to:'paolaggd@gmail.com',
+        to:'email@gmail.com',
         attachments:[
           pdf
         ],
         subject:'Prueba envio de correo',
-        body:'Pdf de prueba',
+        body:'prueba 1233',
         isHtml:true
       };
       this.emailComposer.open(email);
@@ -96,21 +95,28 @@ export class HomePage {
 
     this.pdfObj = pdfMake.createPdf(docDefinition);
     if (this.plfrm.is('cordova')) {
+      let self = this;
 
       this.pdfObj.getBuffer((buffer) => {
-        let blob = new Blob([buffer], { type: 'application/pdf' });
-        debugger;
-
-        this.file.writeFile(this.file.dataDirectory, 'myletter.pdf', blob, { replace: true }).then(fileEntry => {
-          this.fileOpener.open(this.file.dataDirectory + 'myletter.pdf', 'application/pdf');
-
-        })
+        let utf8 = new Uint8Array(buffer);
+        let binaryArray = utf8.buffer;
+        self.saveToDevice(binaryArray,"Ejemplo.pdf")
       });
     } else {
       let num = "102434";
+      this.pdfObj.getDataUrl((url)=>{
+        console.log("url: "+url);
+      });
       this.pdfObj.download("pedido "+num);
     }
 
+  }
+
+  saveToDevice(data:any,savefile:any){
+    let self = this;
+    self.file.writeFile(self.file.externalDataDirectory, savefile, data, {replace:false});
+    let ruta=self.file.externalDataDirectory+savefile;
+    this.sendPDF(ruta);
   }
 
 
